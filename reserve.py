@@ -51,6 +51,7 @@ def book_rainforest(tomorrow=False):
     if tomorrow:
         curr_hour = now.hour
         # Assumes tickets are released at 8am and 11am in same timezone
+        # Assumes you're running in the morning
         h = 11 if abs(11-curr_hour) < abs(8-curr_hour) else 8
         print("closer to:", h)
         wait_until = datetime(now.year, now.month, now.day, h)
@@ -76,6 +77,7 @@ def book_rainforest(tomorrow=False):
                 time.sleep(1)
     else:
         while True:
+            print(driver.current_url)
             print("BOOK IT!!")
             time.sleep(10)
 
@@ -85,7 +87,7 @@ def reload_and_reserve(driver, tomorrow_date, tomorrow):
 
     input_element = driver.find_element(By.XPATH, "//input[@name='tourCalendarWithKey']")
 
-    desired_date = tomorrow_date.strftime("%m/%d/%Y") if tomorrow else "04/10/2022"
+    desired_date = tomorrow_date.strftime("%m/%d/%Y") if tomorrow else "04/07/2022"
     print("booking for", desired_date)
     input_element.send_keys(desired_date)
 
@@ -106,11 +108,13 @@ def reload_and_reserve(driver, tomorrow_date, tomorrow):
         try:
            reserve_button = driver.find_element(By.XPATH, '//*[@id="page-content"]/main/div[2]/div/div[1]/div[1]/div/div[3]/div[2]/button')
            reserve_button.click()
-        except Exception:
+        except Exception as err:
+            print("there was an error, continuing", err)
             continue
 
-
+    time.sleep(1)
     maybe_cart = driver.current_url
+    print(maybe_cart)
     if 'reservation' in maybe_cart:
         cart_quantity = driver.find_elements(By.XPATH, "//span[@class='cart-quantity']")
         if len(cart_quantity) > 0:
